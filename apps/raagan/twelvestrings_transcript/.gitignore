@@ -1,0 +1,5 @@
+# Local recordings are private test inputs, not submission assets.
+*.wav
+*.mp3
+*.m4a
+*.flac

@@ -23,8 +23,12 @@ See [PROBLEM.md](PROBLEM.md) for the longer problem statement and
 
 ## Status
 
-Initial TypeScript CLI and synthetic-audio tests are in place. No real API
-request, guitar-recording validation, or user test yet.
+Initial TypeScript CLI and synthetic-audio tests are in place. In a manual
+smoke test with my own `speech_and_strum.wav`, the CLI returned 3 speech
+segments and 12 estimated note events from one recording. The local recording
+and transcript output are not committed. Pitch accuracy is not validated:
+brief high/low outliers and repeated note switches appeared in that run.
+No independent user test yet.
 
 ## Install and run
 
@@ -51,8 +55,8 @@ tracked file or command argument.
 
 ## Not done yet
 
-Recording UI, a real request with my own audio, validation of pitch accuracy
-and timing, playback/review UI, user test, two-minute demo, and vision. The
+Recording UI, validation of pitch accuracy and timing, playback/review UI,
+user test, two-minute demo, and vision. The
 CLI accepts PCM16 WAV only; its pitch output is an estimate, not verified
 performance or chord recognition. It does not integrate into the separate
 TwelveStrings project yet. The one-year vision will be written after a real
