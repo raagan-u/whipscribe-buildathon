@@ -36,7 +36,7 @@ I'm Raagan U. I build music and crypto products, from audio-driven guitar intera
 - Team lead: Technical lead for abstracted wallet infrastructure at my company. I built the initial core supporting roughly 10 chains, with policies and TEE integration. The project later involved about eight contributors while I continued to own the core infrastructure.
 - Team projects: [AVAX atomic-swap bridge](https://github.com/raagan-u/avax-atomic-swap-bridge) — Bitcoin integration in a four-person team; [Merry](https://github.com/hashiraio/merry) — merged CLI and chain-support contributions.
 - Proudest work: [TwelveStrings](https://twelvestrings.xyz) — a guitar-playing app I maintain across its backend and web frontend.
-- Contributions elsewhere: Merged PRs in [Merry #25](https://github.com/hashiraio/merry/pull/25), [Merry #13](https://github.com/hashiraio/merry/pull/13), [blockchain #63](https://github.com/hashiraio/blockchain/pull/63), and [blockchain #27](https://github.com/hashiraio/blockchain/pull/27).
+- Contributions elsewhere: **Product opportunity (proposed, not currently supported): pitch detection in the WhipScribe API could turn musical recordings into timestamped note events and open a new audience of musicians, students, and teachers.** Merged PRs in [Merry #25](https://github.com/hashiraio/merry/pull/25), [Merry #13](https://github.com/hashiraio/merry/pull/13), [blockchain #63](https://github.com/hashiraio/blockchain/pull/63), and [blockchain #27](https://github.com/hashiraio/blockchain/pull/27).
 
 ## Checklist
 
