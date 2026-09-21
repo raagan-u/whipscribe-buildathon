@@ -31,12 +31,14 @@ I'm Raagan U. I build music and crypto products, from audio-driven guitar intera
 ## Track record
 
 - LinkedIn: https://www.linkedin.com/in/raagan-u/
-- Shipped apps: No App Store or Play Store release claimed. TwelveStrings is a [live web app](https://twelvestrings.xyz), not a store app.
-- Hackathon wins: Second place in the Hyderabad region of an Avalanche hackathon. Our four-person team built an atomic-swap bridge; I handled the Bitcoin components. [Winner announcement](https://x.com/AvaxTeam1/status/1973980984606691516) · [public project copy with original commits](https://github.com/raagan-u/avax-atomic-swap-bridge).
+- Shipped apps: No App Store or Play Store release claimed. TwelveStrings is a live web app: https://twelvestrings.xyz
+- Hackathon wins: Avalanche hackathon, Hyderabad regional second place. Four-person atomic-swap bridge; I built the Bitcoin components. Result: https://x.com/AvaxTeam1/status/1973980984606691516 Project: https://github.com/raagan-u/avax-atomic-swap-bridge
 - Team lead: Technical lead for abstracted wallet infrastructure at my company. I built the initial core supporting roughly 10 chains, with policies and TEE integration. The project later involved about eight contributors while I continued to own the core infrastructure.
-- Team projects: [AVAX atomic-swap bridge](https://github.com/raagan-u/avax-atomic-swap-bridge) — Bitcoin integration in a four-person team; [Merry](https://github.com/hashiraio/merry) — merged CLI and chain-support contributions.
-- Proudest work: [TwelveStrings](https://twelvestrings.xyz) — a guitar-playing app I maintain across its backend and web frontend.
-- Contributions elsewhere: **Product opportunity (proposed, not currently supported): pitch detection in the WhipScribe API could turn musical recordings into timestamped note events and open a new audience of musicians, students, and teachers.** Merged PRs in [Merry #25](https://github.com/hashiraio/merry/pull/25), [Merry #13](https://github.com/hashiraio/merry/pull/13), [blockchain #63](https://github.com/hashiraio/blockchain/pull/63), and [blockchain #27](https://github.com/hashiraio/blockchain/pull/27).
+- Team projects: AVAX bridge, Bitcoin integration in a four-person team: https://github.com/raagan-u/avax-atomic-swap-bridge Merry, CLI and chain-support contributions: https://github.com/hashiraio/merry
+- Proudest work: TwelveStrings, the live guitar-playing app I maintain across backend and web frontend: https://twelvestrings.xyz
+- Contributions elsewhere: Product opportunity: pitch detection in the WhipScribe API could give musicians timestamped note events. This is a proposal, not a current feature. I have merged PRs in Merry and blockchain; one example: https://github.com/hashiraio/merry/pull/25
+
+Additional merged external PRs: [Merry #13](https://github.com/hashiraio/merry/pull/13), [blockchain #63](https://github.com/hashiraio/blockchain/pull/63), and [blockchain #27](https://github.com/hashiraio/blockchain/pull/27).
 
 ## Checklist
 
