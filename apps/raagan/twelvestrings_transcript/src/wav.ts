@@ -2,8 +2,7 @@ import { readFile } from "node:fs/promises";
 
 export type AudioSamples = { samples: Float32Array; sampleRate: number };
 
-export async function readPcm16Wav(path: string): Promise<AudioSamples> {
-  const bytes = await readFile(path);
+export function parsePcm16Wav(bytes: Buffer): AudioSamples {
   if (bytes.toString("ascii", 0, 4) !== "RIFF" || bytes.toString("ascii", 8, 12) !== "WAVE") {
     throw new Error("Expected a RIFF/WAVE file.");
   }
@@ -40,4 +39,8 @@ export async function readPcm16Wav(path: string): Promise<AudioSamples> {
     samples[index] = sum / channels;
   }
   return { samples, sampleRate };
+}
+
+export async function readPcm16Wav(path: string): Promise<AudioSamples> {
+  return parsePcm16Wav(await readFile(path));
 }
