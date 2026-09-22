@@ -91,14 +91,39 @@ put it in the browser or a tracked file. The page states when it will send
 audio to WhipScribe. If no key is configured, it runs YIN only. Pitch labels
 are estimates to verify by listening.
 
+## Vision: two people, twelve strings
+
+TwelveStrings is named for two six-string guitars connecting people who are
+far apart, not for a twelve-string instrument. The existing
+[TwelveStrings app](https://twelvestrings.xyz) has a solo Chill space and a
+private two-player Jam Room; game modes are planned. This Track 4 lesson
+reviewer is a small, testable entry point into that wider idea.
+
+A year on, if the workflow proves useful, a student and teacher—or two
+friends—could choose to save a Jam Room session and revisit it together.
+After the session, WhipScribe could turn their conversation into searchable,
+timestamped speech;
+local music analysis could mark clear single-note passages. A shared replay
+would let either person jump from “try that riff again” to what was played,
+save a moment for practice, and find it in a later session. With consent from
+both people, those moments could eventually feed practice prompts or future
+game modes, rather than disappear when the room closes.
+
+This needs real user feedback, reliable transcription jobs, precise speech
+and speaker timing, and a way to distinguish two guitars before claiming to
+analyze both players. The current prototype processes one uploaded WAV after
+the fact; it does not record the Jam Room, transcribe live, separate two
+instruments, or offer a WhipScribe music API. Those are possible next steps
+to validate, not capabilities claimed here.
+
 ## Not done yet
 
 Recording UI, validation of pitch accuracy and timing, user test,
-two-minute demo, and vision. The
+and two-minute demo. The
 CLI accepts PCM16 WAV only; its pitch output is an estimate, not verified
 performance or chord recognition. It does not integrate into the separate
-TwelveStrings project yet. The one-year vision will be written after a real
-recording and user test, as the challenge suggests. The viewer keeps results
+TwelveStrings project yet. The vision above is a hypothesis to refine after
+a real user test. The viewer keeps results
 in browser memory only, so a refresh requires reselecting the WAV. The new
 viewer speech path has been checked with mocked API responses, not a live
 WhipScribe submission while its transcription backend is unavailable.
