@@ -93,28 +93,20 @@ are estimates to verify by listening.
 
 ## Vision: two people, twelve strings
 
-TwelveStrings is named for two six-string guitars connecting people who are
-far apart, not for a twelve-string instrument. The existing
-[TwelveStrings app](https://twelvestrings.xyz) has a solo Chill space and a
-private two-player Jam Room; game modes are planned. This Track 4 lesson
-reviewer is a small, testable entry point into that wider idea.
+TwelveStrings means two six-string guitars connecting people far apart. Its
+[Jam Room](https://twelvestrings.xyz/jamroom) is built for two players; this
+lesson reviewer is one starting use case. A year on, friends and teachers
+could save a session with both players' consent, then revisit what was said
+and played. I would build shared replay, saved practice moments, and later
+connect those moments to planned game modes.
 
-A year on, if the workflow proves useful, a student and teacher—or two
-friends—could choose to save a Jam Room session and revisit it together.
-After the session, WhipScribe could turn their conversation into searchable,
-timestamped speech;
-local music analysis could mark clear single-note passages. A shared replay
-would let either person jump from “try that riff again” to what was played,
-save a moment for practice, and find it in a later session. With consent from
-both people, those moments could eventually feed practice prompts or future
-game modes, rather than disappear when the room closes.
-
-This needs real user feedback, reliable transcription jobs, precise speech
-and speaker timing, and a way to distinguish two guitars before claiming to
-analyze both players. The current prototype processes one uploaded WAV after
-the fact; it does not record the Jam Room, transcribe live, separate two
-instruments, or offer a WhipScribe music API. Those are possible next steps
-to validate, not capabilities claimed here.
+From WhipScribe, I would need reliable transcription with precise speaker
+timestamps and, ideally, opt-in native pitch detection that returns timed
+note events correlated with the speech transcript. That would make a spoken
+cue and the nearby playing part of one searchable moment. Today's prototype
+only joins WhipScribe speech with local YIN estimates from one uploaded WAV;
+it does not record or transcribe the Jam Room or separate two guitars. User
+testing and two-instrument analysis would be needed before expanding there.
 
 ## Not done yet
 
