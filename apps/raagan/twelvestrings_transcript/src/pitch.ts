@@ -1,13 +1,13 @@
-// Adapted from twelvestrings_web/src/audio/pitch.ts and note.ts.
-// Offline frame processing reuses the existing guitar detector's FFT and
-// fundamental selection; results remain estimates, not verified notes.
+// Offline monophonic pitch estimation using YIN. The previous FFT detector
+// is retained in comments below for comparison. Results remain estimates.
 
 export const FRAME_SIZE = 4096;
 const MIN_FREQ_HZ = 70;
 const MAX_FREQ_HZ = 1320;
-const SUBHARMONIC_THRESHOLD = 0.2;
+// const SUBHARMONIC_THRESHOLD = 0.2; // Legacy FFT setting
 const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
+/* Legacy FFT pitch detector, retained for comparison.
 function fft(re: Float64Array, im: Float64Array): void {
   const n = re.length;
   for (let i = 1, j = 0; i < n; i++) {
@@ -54,7 +54,62 @@ function parabolicInterpolate(magnitudes: Float64Array, peakBin: number): number
   return denominator === 0 ? peakBin : peakBin + (0.5 * (alpha - gamma)) / denominator;
 }
 
+*/
+
+const YIN_THRESHOLD = 0.1;
+
+function yin(samples: Float32Array, sampleRate: number): number | null {
+  const n = samples.length;
+  if (n === 0 || (n & (n - 1)) !== 0) throw new Error("Pitch frame must have power-of-two length.");
+
+  if (!Number.isFinite(sampleRate) || sampleRate <= 0) return null;
+
+  const minTau = Math.max(2, Math.ceil(sampleRate / MAX_FREQ_HZ));
+  const maxTau = Math.min(Math.floor(n / 2) - 1, Math.floor(sampleRate / MIN_FREQ_HZ));
+
+  if (minTau > maxTau) return null;
+
+  const normalized = new Float64Array(maxTau + 1);
+
+  let runningSum = 0;
+  let bestTau = -1;
+
+  for (let tau = 1; tau <= maxTau; tau++) {
+    let difference = 0;
+  
+    for (let j = 0; j < n - tau; j++) {
+      const delta = samples[j] - samples[j + tau];
+      difference += delta * delta;
+    }
+  
+    runningSum += difference;
+  
+    normalized[tau] = runningSum > 0 ? difference * tau / runningSum : 1;
+  
+    if (tau >= minTau && tau > 1 && normalized[tau - 1] < YIN_THRESHOLD &&
+        normalized[tau - 1] <= normalized[tau - 2] &&
+        normalized[tau - 1] <= normalized[tau]) {
+      bestTau = tau - 1;
+      break;
+    }
+  }
+  if (bestTau < 0) return null;
+
+  // Interpolate around the selected period for a more precise frequency.
+  const left = normalized[bestTau - 1];
+  const center = normalized[bestTau];
+  const right = normalized[bestTau + 1];
+  const curvature = left - 2 * center + right;
+  const correction = curvature > 0 ? 0.5 * (left - right) / curvature : 0;
+  const frequency = sampleRate / (bestTau + Math.max(-1, Math.min(1, correction)));
+
+  return frequency >= MIN_FREQ_HZ && frequency <= MAX_FREQ_HZ ? frequency : null;
+}
+
 export function detectPitch(samples: Float32Array, sampleRate: number): number | null {
+  return yin(samples, sampleRate);
+
+  /* Legacy FFT path, retained for comparison.
   const n = samples.length;
   if (n === 0 || (n & (n - 1)) !== 0) throw new Error("Pitch frame must have power-of-two length.");
   const re = new Float64Array(n);
@@ -82,6 +137,7 @@ export function detectPitch(samples: Float32Array, sampleRate: number): number |
   }
   const frequency = parabolicInterpolate(magnitudes, peakBin) * sampleRate / n;
   return frequency >= MIN_FREQ_HZ && frequency <= MAX_FREQ_HZ ? frequency : null;
+  */
 }
 
 export function hzToNote(frequency: number): string {
