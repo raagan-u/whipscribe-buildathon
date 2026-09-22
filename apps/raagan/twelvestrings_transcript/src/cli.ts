@@ -3,7 +3,7 @@ import { basename, resolve } from "node:path";
 import { detectNoteEvents } from "./pitch.ts";
 import { mergeTimeline } from "./timeline.ts";
 import { parsePcm16Wav } from "./wav.ts";
-import { transcribeFile, validateTranscript, type Transcript } from "./whipscribe.ts";
+import { transcribeFile, validateTranscript, type Transcript, type TranscriptionProgress } from "./whipscribe.ts";
 
 type Options = {
   audio: string;
@@ -56,18 +56,49 @@ function parseArgs(args: string[]): Options {
 
 async function run(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
+  const started = performance.now();
+  const log = (message: string) => {
+    console.error(`[+${((performance.now() - started) / 1000).toFixed(1)}s] ${message}`);
+  };
+  const logWhipscribe = (event: TranscriptionProgress) => {
+    switch (event.phase) {
+      case "uploading": log("Uploading audio to WhipScribe…"); break;
+      case "submitted": log("Upload accepted; waiting for transcription job…"); break;
+      case "queued":
+      case "processing":
+        log(`Transcription ${event.phase}${event.progress === undefined
+          ? "…" : ` (${Math.round(event.progress * 100)}% reported)`}`);
+        break;
+      case "done": log("Transcription finished."); break;
+      case "fetching": log("Fetching timestamped transcript…"); break;
+      case "transcript":
+        log(`Transcript received: ${event.segments} speech segments${event.speechDetected
+          ? "." : "; no speech detected."}`);
+        break;
+    }
+  };
+  log(`Reading ${basename(options.audio)}…`);
   const audioBytes = await readFile(options.audio);
   const { samples, sampleRate } = parsePcm16Wav(audioBytes);
+  log(`Audio ready: ${(samples.length / sampleRate).toFixed(1)}s, ${sampleRate} Hz, ${(audioBytes.length / 1024 / 1024).toFixed(1)} MiB.`);
+  log(`Estimating notes in ${options.guitarStart.toFixed(1)}–${options.guitarEnd.toFixed(1)}s…`);
   const notes = detectNoteEvents(samples, sampleRate, options.guitarStart, options.guitarEnd);
+  log(`Local pitch analysis finished: ${notes.length} note events.`);
   let transcript: Transcript;
   let jobId: string | null = null;
   if (options.transcriptJson) {
+    log("Loading existing transcript JSON; no API upload.");
     transcript = validateTranscript(JSON.parse(await readFile(options.transcriptJson, "utf8")));
+    log(`Transcript loaded: ${transcript.segments.length} speech segments.`);
   } else {
     const apiKey = process.env.WHIPSCRIBE_API_KEY;
     if (!apiKey) throw new Error("Set WHIPSCRIBE_API_KEY or use --transcript-json.");
-    ({ jobId, transcript } = await transcribeFile(audioBytes, basename(options.audio), apiKey, options.timeout));
+    ({ jobId, transcript } = await transcribeFile(
+      audioBytes, basename(options.audio), apiKey, options.timeout,
+      fetch, undefined, logWhipscribe,
+    ));
   }
+  log("Merging speech and note timelines…");
   const timeline = mergeTimeline(transcript, notes);
   const output = {
     audio: resolve(options.audio),
@@ -78,6 +109,7 @@ async function run(): Promise<void> {
     timeline,
   };
   await writeFile(options.output, JSON.stringify(output, null, 2) + "\n", { flag: "wx" });
+  log(`Saved ${timeline.length} timeline events to ${options.output}.`);
   console.log(`Wrote ${options.output}: ${transcript.segments.length} speech segments, ${notes.length} note events.`);
   for (const item of timeline) {
     const timestamp = item.start.toFixed(2).padStart(7);

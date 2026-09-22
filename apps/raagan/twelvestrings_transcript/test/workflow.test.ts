@@ -1,13 +1,16 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { mergeTimeline } from "../src/timeline.ts";
-import { transcribeFile, validateTranscript } from "../src/whipscribe.ts";
+import { transcribeFile, validateTranscript, type TranscriptionProgress } from "../src/whipscribe.ts";
 
 test("uploads one WAV, polls, and fetches timestamped JSON", async () => {
   const calls: Array<{ url: string; init?: RequestInit }> = [];
+  const progress: TranscriptionProgress[] = [];
   const responses = [
     Response.json({ job_id: "own-job", status: "queued", claim_token: "claim" }, { status: 202 }),
-    Response.json({ status: "processing" }),
+    Response.json({ status: "queued" }),
+    Response.json({ status: "processing", progress: 0.42 }),
+    Response.json({ status: "processing", progress: 0.45 }),
     Response.json({ status: "done", speech_detected: true }),
     Response.json({ text: "Try C.", segments: [{ start: 1, end: 2, text: "Try C.", speaker: "SPEAKER_00" }] }),
   ];
@@ -17,16 +20,24 @@ test("uploads one WAV, polls, and fetches timestamped JSON", async () => {
   }) as typeof fetch;
   const result = await transcribeFile(
     Buffer.from("test"), "own.wav", "test-key", 10, transport, async () => {},
+    event => progress.push(event),
   );
   assert.equal(result.jobId, "own-job");
   assert.equal(result.transcript.segments[0].start, 1);
   assert.equal(result.transcript.speech_detected, true);
-  assert.equal(calls.length, 4);
+  assert.equal(calls.length, 6);
   assert.equal(calls[0].url, "https://whipscribe.com/api/v1/transcribe");
   assert.equal(calls[0].init?.method, "POST");
   assert.equal((calls[0].init?.body as FormData).get("source"), "api");
   assert.equal((calls[1].init?.headers as Record<string, string>)["X-Claim-Token"], "claim");
-  assert.equal(calls[3].url, "https://whipscribe.com/api/v1/jobs/own-job/result?format=json");
+  assert.equal(calls[5].url, "https://whipscribe.com/api/v1/jobs/own-job/result?format=json");
+  assert.deepEqual(progress.map(event => event.phase), [
+    "uploading", "submitted", "queued", "processing", "done", "fetching", "transcript",
+  ]);
+  assert.equal(progress[3].phase, "processing");
+  assert.equal((progress[3] as { progress: number }).progress, 0.42);
+  assert.ok(!JSON.stringify(progress).includes("test-key"));
+  assert.ok(!JSON.stringify(progress).includes("claim"));
 });
 
 test("accepts documented no-speech results without inventing segments", () => {

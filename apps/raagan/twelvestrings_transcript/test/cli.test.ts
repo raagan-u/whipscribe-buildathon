@@ -44,6 +44,10 @@ test("CLI joins synthetic notes with a mock transcript without an API call", asy
       "--transcript-json", transcriptPath, "--output", outputPath,
     ], { encoding: "utf8" });
     assert.equal(command.status, 0, command.stderr);
+    assert.match(command.stderr, /Reading synthetic\.wav/);
+    assert.match(command.stderr, /Local pitch analysis finished: 1 note events/);
+    assert.match(command.stderr, /Loading existing transcript JSON; no API upload/);
+    assert.match(command.stderr, /Saved 2 timeline events/);
     const output = JSON.parse(await readFile(outputPath, "utf8"));
     assert.deepEqual(output.timeline.map((event: { kind: string }) => event.kind), ["note", "speech"]);
     assert.equal(output.timeline[0].note, "A2");

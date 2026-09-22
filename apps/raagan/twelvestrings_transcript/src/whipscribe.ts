@@ -13,8 +13,19 @@ export type Transcript = {
   segments: SpeechSegment[];
 };
 
-type JobStatus = { status: string; error?: string | null; locked?: boolean; speech_detected?: boolean };
+type JobStatus = {
+  status: string;
+  error?: string | null;
+  locked?: boolean;
+  speech_detected?: boolean;
+  progress?: number;
+};
 type SubmitResult = { job_id: string; claim_token?: string };
+
+export type TranscriptionProgress =
+  | { phase: "uploading" | "submitted" | "done" | "fetching" }
+  | { phase: "queued" | "processing"; progress?: number }
+  | { phase: "transcript"; segments: number; speechDetected: boolean };
 
 async function jsonResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -61,6 +72,7 @@ export async function transcribeFile(
   timeoutSeconds = 600,
   transport: typeof fetch = fetch,
   sleep: (milliseconds: number) => Promise<void> = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds)),
+  onProgress: (event: TranscriptionProgress) => void = () => {},
 ): Promise<{ jobId: string; transcript: Transcript }> {
   if (!apiKey) throw new Error("WHIPSCRIBE_API_KEY is required for API mode.");
   if (!Number.isFinite(timeoutSeconds) || timeoutSeconds <= 0) throw new Error("Invalid timeout.");
@@ -68,6 +80,7 @@ export async function transcribeFile(
   const form = new FormData();
   form.append("file", new Blob([new Uint8Array(bytes)], { type: "audio/wav" }), filename);
   form.append("source", "api");
+  onProgress({ phase: "uploading" });
   const submitted = await jsonResponse<SubmitResult>(await transport(API_ROOT + "/transcribe", {
     method: "POST", headers: { "X-API-Key": apiKey }, body: form,
     signal: AbortSignal.timeout(timeoutSeconds * 1000),
@@ -76,23 +89,41 @@ export async function transcribeFile(
     throw new Error("WhipScribe submit response has no job_id.");
   }
   const jobId = submitted.job_id;
+  onProgress({ phase: "submitted" });
   const headers: Record<string, string> = { "X-API-Key": apiKey };
   if (submitted.claim_token) headers["X-Claim-Token"] = submitted.claim_token;
 
   let status: JobStatus;
+  let lastPhase = "";
+  let lastProgressBucket = -1;
+  let unchangedPolls = 0;
   while (true) {
     if (Date.now() >= deadline) throw new Error(`Job ${jobId} is still running; timed out locally.`);
     status = await jsonResponse<JobStatus>(await transport(API_ROOT + "/jobs/" + jobId, {
       headers, signal: AbortSignal.timeout(Math.min(30_000, Math.max(1, deadline - Date.now()))),
     }));
-    if (status.status === "done") break;
+    if (status.status === "done") {
+      onProgress({ phase: "done" });
+      break;
+    }
     if (status.status === "failed") throw new Error(`WhipScribe job failed: ${status.error ?? "unknown reason"}`);
     if (status.status !== "queued" && status.status !== "processing") {
       throw new Error(`Unexpected WhipScribe job status: ${status.status}`);
     }
+    const progress = typeof status.progress === "number" && Number.isFinite(status.progress)
+      ? Math.max(0, Math.min(1, status.progress)) : undefined;
+    const bucket = progress === undefined ? -1 : Math.floor(progress * 10);
+    unchangedPolls += 1;
+    if (status.status !== lastPhase || bucket > lastProgressBucket || unchangedPolls >= 5) {
+      onProgress({ phase: status.status, progress });
+      lastPhase = status.status;
+      lastProgressBucket = bucket;
+      unchangedPolls = 0;
+    }
     await sleep(Math.min(3000, Math.max(0, deadline - Date.now())));
   }
   if (status.locked) throw new Error("Transcript is locked; check your WhipScribe credits.");
+  onProgress({ phase: "fetching" });
   const result = validateTranscript(await jsonResponse<unknown>(await transport(
     API_ROOT + "/jobs/" + jobId + "/result?format=json",
     { headers, signal: AbortSignal.timeout(30_000) },
@@ -100,5 +131,10 @@ export async function transcribeFile(
   if (result.speech_detected === undefined && typeof status.speech_detected === "boolean") {
     result.speech_detected = status.speech_detected;
   }
+  onProgress({
+    phase: "transcript",
+    segments: result.segments.length,
+    speechDetected: result.speech_detected ?? result.segments.length > 0,
+  });
   return { jobId, transcript: result };
 }

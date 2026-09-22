@@ -53,6 +53,12 @@ gitignored because it contains transcript content; the CLI refuses to
 overwrite an existing file. Keep API keys in the environment, never in a
 tracked file or command argument.
 
+Progress messages go to stderr: audio loading, local pitch analysis, API
+upload and job status (including the API's best-effort progress when present),
+transcript fetch, and output save. The key, claim token, and transcript text
+are not included in those progress messages. The CLI still prints the
+timestamped result to stdout after saving the JSON.
+
 ## Not done yet
 
 Recording UI, validation of pitch accuracy and timing, playback/review UI,
