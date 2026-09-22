@@ -1,3 +1,5 @@
+import { visibleNotes } from './speech-mask.js';
+
 const audioInput = document.querySelector('#audio-file');
 const analyzeForm = document.querySelector('#analyze-form');
 const analyzeButton = document.querySelector('#analyze-button');
@@ -15,6 +17,7 @@ let filter = 'all';
 let runId = 0;
 let requests = [];
 let analysisFinished = false;
+let guitarRangeSelected = false;
 let configReady;
 
 function setStatus(message, isError = false) {
@@ -60,12 +63,14 @@ async function postWav(path, file, signal) {
 }
 
 function render() {
-  const shownNotes = notes.filter(note => !speech.some(segment =>
-    segment.text.trim() && note.start < segment.end && note.end > segment.start));
-  const suppressed = notes.length - shownNotes.length;
+  const { shownNotes, hiddenCount, coarseCount } = visibleNotes(notes, speech, guitarRangeSelected);
   const suppressionNote = document.querySelector('#suppression-note');
-  suppressionNote.hidden = suppressed === 0;
-  suppressionNote.textContent = `${suppressed} ${suppressed === 1 ? 'note estimate' : 'note estimates'} hidden because ${suppressed === 1 ? 'it overlaps' : 'they overlap'} speech.`;
+  const messages = [];
+  if (guitarRangeSelected && speech.length) messages.push('Your chosen guitar interval takes priority over speech timestamps.');
+  if (coarseCount) messages.push(`${coarseCount} long speech ${coarseCount === 1 ? 'segment is' : 'segments are'} too broad for note masking; notes remain visible there.`);
+  if (hiddenCount) messages.push(`${hiddenCount} ${hiddenCount === 1 ? 'note estimate' : 'note estimates'} hidden because ${hiddenCount === 1 ? 'it overlaps' : 'they overlap'} speech.`);
+  suppressionNote.hidden = messages.length === 0;
+  suppressionNote.textContent = messages.join(' ');
   const events = [...shownNotes, ...speech].sort((a, b) => a.start - b.start || a.end - b.end);
   const visible = events.filter(event => filter === 'all' || event.kind === filter);
   document.querySelector('#count-all').textContent = String(events.length);
@@ -143,6 +148,7 @@ audioInput.addEventListener('change', () => {
   audioFile = audioInput.files[0] || null;
   notes = [];
   speech = [];
+  guitarRangeSelected = false;
   analysisFinished = false;
   review.hidden = true;
   analyzeForm.hidden = !audioFile;
@@ -183,6 +189,7 @@ analyzeForm.addEventListener('submit', async event => {
   stopRequests();
   const currentRun = runId;
   const file = audioFile;
+  guitarRangeSelected = hasRange;
   notes = [];
   speech = [];
   analysisFinished = false;

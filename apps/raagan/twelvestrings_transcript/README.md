@@ -67,7 +67,11 @@ server runs the existing YIN detector over the full WAV by default and, when
 `WHIPSCRIBE_API_KEY` is set in the shell, submits the same WAV for speech
 transcription. A guitar-only interval can be set when desired. Notes appear as
 soon as local analysis finishes; speech is added to the same timeline when ready.
-Once speech arrives, entire note events that overlap speech segments are hidden.
+Once speech arrives, entire note events that overlap short speech segments are hidden.
+Segments longer than ten seconds are too coarse for this masking and leave notes
+visible. A manually selected guitar interval also takes priority over speech
+timestamps, so a known guitar passage remains visible even if the transcript
+marks it as speech.
 If transcription is unavailable, the note timeline and audio playback still
 work, though speech may be mislabelled as notes until a transcript is available.
 This version assumes the student does not play while speaking and does not

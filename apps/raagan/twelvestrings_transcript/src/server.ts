@@ -11,6 +11,7 @@ const UI_DIR = join(dirname(fileURLToPath(import.meta.url)), "../ui");
 const ASSETS: Record<string, { file: string; type: string }> = {
   "/": { file: "index.html", type: "text/html; charset=utf-8" },
   "/app.js": { file: "app.js", type: "text/javascript; charset=utf-8" },
+  "/speech-mask.js": { file: "speech-mask.js", type: "text/javascript; charset=utf-8" },
   "/style.css": { file: "style.css", type: "text/css; charset=utf-8" },
 };
 
