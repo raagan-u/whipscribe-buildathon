@@ -31,7 +31,8 @@ brief high/low outliers and repeated note switches appeared in that run.
 No independent user test yet.
 
 Watch the [1:22 TwelveStrings × WhipScribe demo](TwelveStringsXWhipscribeDemo.mov)
-for a walkthrough of the current prototype.
+for a walkthrough of the current prototype. A [54-second follow-up recording](TwelveStringsXWhipscribeDemo-2.mp4)
+is also available in a smaller 720p H.264 file.
 
 ## Install and run
 
