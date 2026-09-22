@@ -30,6 +30,9 @@ and transcript output are not committed. Pitch accuracy is not validated:
 brief high/low outliers and repeated note switches appeared in that run.
 No independent user test yet.
 
+Watch the [1:22 TwelveStrings × WhipScribe demo](TwelveStringsXWhipscribeDemo.mov)
+for a walkthrough of the current prototype.
+
 ## Install and run
 
 Requires Node.js 22.18+ and your own uncompressed 16-bit PCM WAV recording.
@@ -110,8 +113,7 @@ testing and two-instrument analysis would be needed before expanding there.
 
 ## Not done yet
 
-Recording UI, validation of pitch accuracy and timing, user test,
-and two-minute demo. The
+Recording UI, validation of pitch accuracy and timing, and user test. The
 CLI accepts PCM16 WAV only; its pitch output is an estimate, not verified
 performance or chord recognition. It does not integrate into the separate
 TwelveStrings project yet. The vision above is a hypothesis to refine after
