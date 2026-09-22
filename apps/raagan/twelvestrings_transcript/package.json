@@ -5,6 +5,7 @@
   "engines": { "node": ">=22.18.0" },
   "scripts": {
     "test": "node --test test/*.test.ts",
-    "start": "node src/cli.ts"
+    "start": "node src/cli.ts",
+    "ui": "node src/server.ts"
   }
 }
