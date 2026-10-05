@@ -84,6 +84,8 @@ timestamps, so a known guitar passage remains visible even if the transcript
 marks it as speech.
 If transcription is unavailable, the note timeline and audio playback still
 work, though speech may be mislabelled as notes until a transcript is available.
+After analysis finishes, **Download merged transcript** saves the displayed
+speech and note events in timestamp order as a plain-text file.
 This version assumes the student does not play while speaking and does not
 support chords or other polyphonic playing.
 Select any event to play from its timestamp. The page does not ask for

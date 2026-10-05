@@ -12,6 +12,7 @@ const ASSETS: Record<string, { file: string; type: string }> = {
   "/": { file: "index.html", type: "text/html; charset=utf-8" },
   "/app.js": { file: "app.js", type: "text/javascript; charset=utf-8" },
   "/speech-mask.js": { file: "speech-mask.js", type: "text/javascript; charset=utf-8" },
+  "/transcript-download.js": { file: "transcript-download.js", type: "text/javascript; charset=utf-8" },
   "/style.css": { file: "style.css", type: "text/css; charset=utf-8" },
   "/demo/speech-and-strum.wav": { file: "demo/speech-and-strum.wav", type: "audio/wav" },
   "/demo/c-major-scale-tutorial.wav": { file: "demo/c-major-scale-tutorial.wav", type: "audio/wav" },

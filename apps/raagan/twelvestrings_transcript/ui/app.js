@@ -1,4 +1,5 @@
 import { visibleNotes } from './speech-mask.js';
+import { buildMergedTranscript, mergedTranscriptFilename } from './transcript-download.js';
 
 const audioInput = document.querySelector('#audio-file');
 const analyzeForm = document.querySelector('#analyze-form');
@@ -7,6 +8,7 @@ const player = document.querySelector('#player');
 const review = document.querySelector('#review');
 const timelineList = document.querySelector('#timeline');
 const status = document.querySelector('#status');
+const downloadButton = document.querySelector('#download-button');
 const filters = [...document.querySelectorAll('.filter')];
 const demoButtons = [...document.querySelectorAll('.demo-card')];
 let audioUrl = null;
@@ -51,6 +53,11 @@ function validateEvents(value, kind) {
   });
 }
 
+function mergedEvents() {
+  const { shownNotes } = visibleNotes(notes, speech, guitarRangeSelected);
+  return [...shownNotes, ...speech].sort((a, b) => a.start - b.start || a.end - b.end);
+}
+
 async function postWav(path, file, signal) {
   const response = await fetch(path, {
     method: 'POST',
@@ -72,12 +79,13 @@ function render() {
   if (hiddenCount) messages.push(`${hiddenCount} ${hiddenCount === 1 ? 'note estimate' : 'note estimates'} hidden because ${hiddenCount === 1 ? 'it overlaps' : 'they overlap'} speech.`);
   suppressionNote.hidden = messages.length === 0;
   suppressionNote.textContent = messages.join(' ');
-  const events = [...shownNotes, ...speech].sort((a, b) => a.start - b.start || a.end - b.end);
+  const events = mergedEvents();
   const visible = events.filter(event => filter === 'all' || event.kind === filter);
   document.querySelector('#count-all').textContent = String(events.length);
   document.querySelector('#count-speech').textContent = String(speech.length);
   document.querySelector('#count-note').textContent = String(shownNotes.length);
   document.querySelector('#summary').textContent = `${speech.length} speech · ${shownNotes.length} ${shownNotes.length === 1 ? 'note' : 'notes'}`;
+  downloadButton.disabled = !analysisFinished || events.length === 0;
   timelineList.replaceChildren();
   for (const event of visible) {
     const row = document.createElement('li');
@@ -152,6 +160,7 @@ function selectAudio(file, guitarStart = '', guitarEnd = '') {
   guitarRangeSelected = false;
   analysisFinished = false;
   review.hidden = true;
+  downloadButton.disabled = true;
   analyzeForm.hidden = !audioFile;
   analyzeButton.disabled = false;
   if (audioUrl) URL.revokeObjectURL(audioUrl);
@@ -275,6 +284,20 @@ filters.forEach(button => button.addEventListener('click', () => {
   });
   render();
 }));
+downloadButton.addEventListener('click', () => {
+  const events = mergedEvents();
+  if (!analysisFinished || !audioFile || events.length === 0) return;
+  const blob = new Blob([buildMergedTranscript(audioFile.name, events)], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = mergedTranscriptFilename(audioFile.name);
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+  setStatus('Merged transcript downloaded.');
+});
 player.addEventListener('timeupdate', updateActive);
 player.addEventListener('play', updateActive);
 player.addEventListener('pause', updateActive);

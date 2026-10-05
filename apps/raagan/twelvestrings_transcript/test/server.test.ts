@@ -21,6 +21,15 @@ test("reports a deployment health check without exposing configuration", async t
   assert.deepEqual(await response.json(), { status: "ok", version: "dev" });
 });
 
+test("serves the merged transcript download module", async t => {
+  const { server, root } = await startServer();
+  t.after(() => server.close());
+  const response = await fetch(root + "/transcript-download.js");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/javascript/);
+  assert.match(await response.text(), /buildMergedTranscript/);
+});
+
 test("rejects WAVs over the configured upload limit", async t => {
   const { server, root } = await startServer({ maxWavBytes: 8 });
   t.after(() => server.close());

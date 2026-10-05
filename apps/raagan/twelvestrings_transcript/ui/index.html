@@ -70,7 +70,10 @@
     <section class="review" id="review" aria-labelledby="review-title" hidden>
       <div class="section-heading review-heading">
         <div><p class="eyebrow">02 / Review the take</p><h2 id="review-title">Session timeline</h2></div>
-        <div class="summary" id="summary" aria-label="Session summary"></div>
+        <div class="review-actions">
+          <div class="summary" id="summary" aria-label="Session summary"></div>
+          <button id="download-button" class="download-button" type="button" disabled>Download merged transcript <span aria-hidden="true">↓</span></button>
+        </div>
       </div>
       <div class="pipeline-grid" aria-label="Analysis progress">
         <div class="pipeline" id="notes-pipeline"><span class="pipeline-icon">01</span><div><strong>YIN notes</strong><p id="notes-status">Waiting</p></div></div>
